@@ -38,9 +38,7 @@
       }
       button{
 		margin:0px 0px 0px 30px;
-
       }
-
     </style>
   </head>
   <body>
@@ -56,116 +54,96 @@
     </canvas>
     <canvas id="canvas3" width="800" height="600">
     </canvas>
-    
-
 
        
     <script>
-     		var clicks = 0;
-     		var Subdino=0;
-			var lastClick = [0, 0];
-			var dots = new Array();
-			var dotsarray=new Array();			
+ 		var clicks = 0;
+ 		var Subdino=0;
+		var lastClick = [0, 0];
+		var dots = new Array();
+		var dotsarray=new Array();
+		document.getElementById('canvas1').addEventListener('click', drawLine, false);
 
-			document.getElementById('canvas1').addEventListener('click', drawLine, false);
+		function go () {
+			// body...
+			var temp = new Array();
+			var canvas = document.getElementById('canvas2');
+  			var context = canvas.getContext('2d');  			
+  			if(Subdino==0)
+  				dotsarray.push(dots);
+  			for (var i = 0; i < dotsarray.length; i++) {
+  				var couple=subdi(dotsarray[i]);
+  				temp.push(couple[0]);
+  				temp.push(couple[1]);
+  			};
+  			dotsarray=temp;
+      		context.clearRect(0, 0, canvas.width, canvas.height);
+  			context.beginPath();
+		    for (var j = 0; j < dotsarray.length; j++) {		    
+			    for (var i = 0; i < dotsarray[j].length-1; i++) {
+			    	context.moveTo(dotsarray[j][i][0], dotsarray[j][i][1]);
+			    	context.lineTo(dotsarray[j][i+1][0], dotsarray[j][i+1][1]);
+			    };
+			};
+		    context.strokeStyle = '#045FB4';
+		    context.lineWidth = 2;
+		    context.stroke();
+		    Subdino++;
 
-			function go () {
-				// body...
-				var temp = new Array();
-				var canvas = document.getElementById('canvas2');
-      			var context = canvas.getContext('2d');
-      			
-      			if(Subdino==0)
-      				dotsarray.push(dots);
-      			for (var i = 0; i < dotsarray.length; i++) {
-      				var couple=subdi(dotsarray[i]);
-      				temp.push(couple[0]);
-      				temp.push(couple[1]);
-      			};
-      			dotsarray=temp;
-	      		context.clearRect(0, 0, canvas.width, canvas.height);
-      			context.beginPath();
-			    for (var j = 0; j < dotsarray.length; j++) {
-			    	
-			    
-				    for (var i = 0; i < dotsarray[j].length-1; i++) {
-				    	context.moveTo(dotsarray[j][i][0], dotsarray[j][i][1]);
-				    	context.lineTo(dotsarray[j][i+1][0], dotsarray[j][i+1][1]);
-				    };
-				};
-			    context.strokeStyle = '#045FB4';
-			    context.lineWidth = 2;
-			    context.stroke();
-			    Subdino++;
+			var canvas = document.getElementById('canvas3');
+  			var context = canvas.getContext('2d');
+  			context.clearRect(0, 0, canvas.width, canvas.height);
+  			context.font = '10pt';
+  			context.fillText('Subdivision: '+Subdino, 700, 20);
+		}
 
+		function subdi (arr) {
+			// body...
+			var temp=new Array();
+			iteration=arr.length;
+			for (var k = 0; arr.length>0; k++) {  				
+  				var subdots= new Array();
+  				temp[k]=arr[0];
+  				temp[2*iteration-2-k]=arr[arr.length-1];	
+      			for (var i = 0; i < arr.length-1; i++){
+      					subdots[i]=[(arr[i+1][0]+arr[i][0])/2,(arr[i+1][1]+arr[i][1])/2];
+      			}
+      			arr=subdots;
+      		}
+      		return [temp.slice(0,iteration),temp.slice(iteration-1)];
+		}
 
-				var canvas = document.getElementById('canvas3');
+		function getCursorPosition(e) {
+		    var x;
+		    var y;
+		    if (e.pageX != undefined && e.pageY != undefined) {
+		        x = e.pageX;
+		        y = e.pageY;
+		    } else {
+		        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+		        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+		    }
+		    return [x, y];
+		}
+
+		function drawLine(e) {
+			if(Subdino!=0){				
+		    	var canvas = document.getElementById('canvas3');
       			var context = canvas.getContext('2d');
       			context.clearRect(0, 0, canvas.width, canvas.height);
-      			context.font = '10pt';
-      			context.fillText('Subdivision: '+Subdino, 700, 20);
-			}
-
-			function subdi (arr) {
-				// body...
-				var temp=new Array();
-				iteration=arr.length;
-				for (var k = 0; arr.length>0; k++) {
-      				
-      				var subdots= new Array();
-      				temp[k]=arr[0];
-      				temp[2*iteration-2-k]=arr[arr.length-1];
-
-  	
-	      			for (var i = 0; i < arr.length-1; i++){
-	      					subdots[i]=[(arr[i+1][0]+arr[i][0])/2,(arr[i+1][1]+arr[i][1])/2];
-
-
-	      			}
-	      			arr=subdots;
-
-	      		}
-
-	      		return [temp.slice(0,iteration),temp.slice(iteration-1)];
-
-			}
-			function getCursorPosition(e) {
-			    var x;
-			    var y;
-
-			    if (e.pageX != undefined && e.pageY != undefined) {
-			        x = e.pageX;
-			        y = e.pageY;
-			    } else {
-			        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-			        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-			    }
-
-			    return [x, y];
-			}
-
-			function drawLine(e) {
-
-				if(Subdino!=0){
-					
-			    	var canvas = document.getElementById('canvas3');
-	      			var context = canvas.getContext('2d');
-	      			context.clearRect(0, 0, canvas.width, canvas.height);
-	      			var canvas = document.getElementById('canvas2');
-	      			var context = canvas.getContext('2d');
-	      			context.clearRect(0, 0, canvas.width, canvas.height);
-	      			var canvas = document.getElementById('canvas1');
-	      			var context = canvas.getContext('2d');
-	      			context.clearRect(0, 0, canvas.width, canvas.height);
-	      			dots=[];
-	      			Subdino=0;
-	      			clicks=0;
-	      			dotsarray=[];
-			    }
-
-			    else{
+      			var canvas = document.getElementById('canvas2');
+      			var context = canvas.getContext('2d');
+      			context.clearRect(0, 0, canvas.width, canvas.height);
+      			var canvas = document.getElementById('canvas1');
+      			var context = canvas.getContext('2d');
+      			context.clearRect(0, 0, canvas.width, canvas.height);
+      			dots=[];
+      			Subdino=0;
+      			clicks=0;
+      			dotsarray=[];
+		    }
+		    else{
 			    context = this.getContext('2d');
-
 			    x = getCursorPosition(e)[0] - this.offsetLeft;
 			    y = getCursorPosition(e)[1] - this.offsetTop;
 			    if(clicks==0)
@@ -179,7 +157,7 @@
 					context.fill();
 					dots.push([x,y]);
 					context.font = '12pt Calibri';
-     				context.fillText('['+x+','+y+']', 5, 20+25*clicks);
+	 				context.fillText('['+x+','+y+']', 5, 20+25*clicks);
 			    }
 			    else
 			    {
@@ -198,13 +176,10 @@
 			        dots.push([x,y]);
 			    	lastClick = [x, y];
 			    	context.fillText('['+x+','+y+']', 5, 20+25*clicks);
-
 			    }
 			    clicks++;
 			}
-
-
-			};
+		};
     </script>
   </body>
 </html>
