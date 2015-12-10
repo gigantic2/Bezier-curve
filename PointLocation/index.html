@@ -1,0 +1,185 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+			body {
+			  margin: 0px;
+			  padding: 0px;
+			}
+			p,
+			h1 {
+			  padding: 0;
+			  margin: 0px 0px 0px 30px;
+			}
+			#canvasbase {
+			  position: absolute;
+			  box-shadow: 0 0 0 1px hsl(0, 0%, 80%);
+			  background: hsl(0, 0%, 95%);
+			  width: 800px;
+			  height: 600px;
+			  margin: 30px 0px 0px 30px;
+			  z-index: 0;
+			}
+			#canvas1 {
+			  position: absolute;
+			  background: transparent;
+			  width: 800px;
+			  height: 600px;
+			  margin: 30px 0px 0px 30px;
+			  z-index: 2;
+			}
+			#canvas2 {
+			  position: absolute;
+			  background: transparent;
+			  width: 800px;
+			  height: 600px;
+			  margin: 30px 0px 0px 30px;
+			  z-index: 1;
+			}
+			#canvas3 {
+			  position: absolute;
+			  width: 800px;
+			  background: transparent;
+			  height: 600px;
+			  margin: 30px 0px 0px 30px;
+			  z-index: 1;
+			}
+			button {
+			  margin: 0px 0px 0px 30px;
+			}
+    </style>
+  </head>
+  <body>
+  	<br  />
+  	<h1>
+  		PointLocation (clicks canvas to set the polygon, double click to close)
+  	</h1>
+
+    <canvas id="canvas1" width="800" height="600">
+    </canvas>
+    <canvas id="canvasbase" width="800" height="600">
+    </canvas>
+    <p>Click button to clear canvas<button onclick='clearCanvas();'>Clear</button></p>
+
+
+    <script>
+ 		var clicks = 0;
+		var lastClick = [0, 0];
+		var _closed = false;
+		var dots = new Array();
+		document.getElementById('canvas1').addEventListener('click', drawLine, false);
+		document.getElementById('canvas1').addEventListener('dblclick', closePolygon, false);
+
+		function clearCanvas() {
+			var canvas = document.getElementById('canvas1');
+			var context = canvas.getContext('2d');
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			dots=[];
+			clicks=0;
+			_closed = false;
+			lastClick = [0, 0];
+			console.log('try');
+		}
+
+		function getCursorPosition(e) {
+	    var x;
+	    var y;
+	    if (e.pageX != undefined && e.pageY != undefined) {
+	        x = e.pageX;
+	        y = e.pageY;
+	    } else {
+	        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+	        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	    }
+	    return [x, y];
+		}
+
+		function drawLine(e) {
+			x = getCursorPosition(e)[0] - this.offsetLeft;
+		  y = getCursorPosition(e)[1] - this.offsetTop;
+			if(!_closed) {
+		    context = this.getContext('2d');
+		    if(clicks==0)
+		    {
+		    	lastClick[0]=x;
+		    	lastClick[1]=y;
+		    	context.beginPath();
+					context.arc(x, y, 4, 0, Math.PI*2, true); 
+					context.closePath();
+					context.fillStyle = '#848484';
+					context.fill();
+					dots.push([x,y]);
+					context.font = '12pt Calibri';
+					context.fillText('['+x+','+y+']', 5, 20+25*clicks);
+		    }
+		    else
+		    {
+		    	context.beginPath();
+					context.arc(x, y, 4, 0, Math.PI*2, true); 
+
+					context.fill();
+		      context.beginPath();
+		      context.moveTo(lastClick[0], lastClick[1]);
+		      context.lineTo(x, y, 6);
+
+		      context.strokeStyle = '#848484';
+		      context.lineWidth = 3;
+		      context.stroke();
+		      dots.push([x,y]);
+		    	lastClick = [x, y];
+		    	context.fillText('['+x+','+y+']', 5, 20+25*clicks);
+		    }
+		    clicks++;
+			}
+			else {
+				console.log(poingLocate([x, y], dots));
+			}
+		};
+
+		function closePolygon() {
+			context.beginPath();
+      context.beginPath();
+      context.moveTo(lastClick[0], lastClick[1]);
+      context.lineTo(dots[0][0], dots[0][1], 6);
+      context.strokeStyle = '#848484';
+      context.lineWidth = 3;
+      context.stroke();
+      _closed = true;
+      console.log(_closed);
+		}
+
+		function poingLocate(p, poly) {
+	    var px = p[0],
+	        py = p[1],
+	        sum = 0
+
+	    for(var i = 0, l = poly.length, j = l - 1; i < l; j = i, i++) {
+	      var sx = poly[i][0],
+	          sy = poly[i][1],
+	          tx = poly[j][0],
+	          ty = poly[j][1]
+
+	      // 点与多边形顶点重合或在多边形的边上
+	      if((sx - px) * (px - tx) >= 0 && (sy - py) * (py - ty) >= 0 && (px - sx) * (ty - sy) === (py - sy) * (tx - sx)) {
+	        return 'on'
+	      }
+
+	      // 点与相邻顶点连线的夹角
+	      var angle = Math.atan2(sy - py, sx - px) - Math.atan2(ty - py, tx - px)
+
+	      // 确保夹角不超出取值范围（-π 到 π）
+	      if(angle >= Math.PI) {
+	        angle = angle - Math.PI * 2
+	      } else if(angle <= -Math.PI) {
+	        angle = angle + Math.PI * 2
+	      }
+
+	      sum += angle
+	    }
+
+	    // 计算回转数并判断点和多边形的几何关系
+	    return Math.round(sum / Math.PI) === 0 ? 'out' : 'in'
+	  }
+    </script>
+  </body>
+</html>
